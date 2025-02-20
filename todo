@@ -1,3 +1,15 @@
+Questions:
+Correlation between ratings and:
+Runtime
+Director
+Genre
+Year
+Stars
+Top/bottom ranked movie for each genre
+Did rankings trend up or down as time progressed?
+Best year for movies
+Top movie for various actors/directors
+
 Variables:
 1. movie
 2. year
@@ -8,3 +20,6 @@ Variables:
 7. votes
 8. runtime
 9. gross
+
+Cleaning:
+- 
