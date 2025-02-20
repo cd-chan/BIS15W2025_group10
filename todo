@@ -1,4 +1,13 @@
-Questions:
+CLEANING
+1. tv shows vs movies (separate by dash, n_distinct for episodes)
+2. separate by genres
+3. separate directors and stars
+4. get rid of one line plot
+5. date: get rid of parantheses in years
+
+---------------------------------------
+QUESTIONS
+
 Correlation between ratings and:
 Runtime
 Director
@@ -10,7 +19,8 @@ Did rankings trend up or down as time progressed?
 Best year for movies
 Top movie for various actors/directors
 
-Variables:
+---------------------------------------
+VARIABLES
 1. movie
 2. year
 3. genre
@@ -20,6 +30,3 @@ Variables:
 7. votes
 8. runtime
 9. gross
-
-Cleaning:
-- 
