@@ -1,0 +1,30 @@
+```{r}
+movies <- read_csv("movies.csv")
+```
+```{r}
+summary(movies)
+```
+
+```{r}
+movies %>% 
+  group_by(MOVIES) %>% 
+  summarize(count = n()) %>% 
+  arrange(-count) %>% 
+  filter(count > 1)
+
+# All "movies" that have more than 1 entry -> shows
+```
+
+
+```{r}
+movies_w_shows <- movies %>% 
+  group_by(MOVIES) %>% 
+  mutate(movie_or_show = if_else(n() > 1, "show", "movie")) %>% 
+  ungroup()
+```
+
+```{r}
+write.csv(movies_w_shows, file = "movies_with_names.csv", row.names = F)
+```
+
+
