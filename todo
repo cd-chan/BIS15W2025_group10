@@ -1,7 +1,7 @@
 CLEANING
 1. tv shows vs movies (separate by dash, n_distinct for episodes)
-2. separate by genres
-3. separate directors and stars
+2. separate by genres - Daniel
+3. separate directors and stars - Daniel
 4. get rid of one line plot
 5. date: get rid of parantheses in years
 
