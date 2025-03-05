@@ -1,9 +1,18 @@
 CLEANING
-1. tv shows vs movies (separate by dash, n_distinct for episodes)
+1. tv shows vs movies 
 2. separate by genres - Daniel
 3. separate directors and stars - Daniel
-4. get rid of one line plot
-5. date: get rid of parantheses in years
+4. get rid of one line plot - caitlin
+5. date: get rid of parentheses in years. put start and end years as diff cols - caitlin
+
+- Join main + TV dataset; anything not in TV dataset is presumably a movie
+- Separate genres; each genre is a column and each cell just has T or F
+- Figure out what to do with multiple episodes
+  - Perhaps manually identify the general entry?
+  - If that's too hard, just delete everything
+
+TV filtering
+1. 
 
 ---------------------------------------
 QUESTIONS
