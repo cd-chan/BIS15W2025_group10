@@ -24,7 +24,7 @@ movies_w_shows <- movies %>%
 ```
 
 ```{r}
-write.csv(movies_w_shows, file = "movies_with_names.csv", row.names = F)
+#write.csv(movies_w_shows, file = "movies_with_names.csv", row.names = F)
 ```
 
 
