@@ -1,0 +1,29 @@
+---
+title: "ratings_runtime"
+author: "Daniel Yang"
+date: "2025-03-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+imdb <- read_csv("/Users/danielyang/Desktop/BIS15W2025_group10/movies.csv") %>% clean_names()
+imdb %>% 
+  select(rating, run_time) %>% 
+  ggplot(aes(x = run_time, y = rating)) +
+  geom_point() +
+  scale_x_log10() +
+  geom_smooth(method = lm, se = T)
+```
+
+```{r}
+
+```
+
