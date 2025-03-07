@@ -1,0 +1,31 @@
+---
+title: "ratings_director_bar"
+author: "Daniel Yang"
+date: "2025-03-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+movies <- read_csv("/Users/danielyang/Downloads/movies.csv")
+names(movies)
+```
+```{r}
+movie <- c('a', 'b', 'c', 'd', 'e', 'f')
+director <- c('aa', 'bb', 'aa', 'bb', 'aa', 'bb')
+rating <- c(1.1, 9.9, 2.3, 8.7, 3.1, 8.1)
+fake_imdb <- tibble(movie, director, rating)
+fake_imdb %>% 
+  pivot_wider(
+              names_from = director,
+              values_from = rating) %>% 
+  summarise(across(everything(), mean, na.rm = T)) %>% 
+  select(-movie) %>% 
+  pivot_longer(names_to = director,
+               values_to = mean_rating)
+```
+
