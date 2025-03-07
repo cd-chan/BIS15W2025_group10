@@ -1,0 +1,200 @@
+Load libraries
+```{r}
+library(tidyverse)
+library(dplyr)
+library(stringr)
+library(janitor)
+```
+
+Load files
+```{r}
+movies <- read_csv("data/movies.csv")
+tv <- read_csv("data/tvs.csv")
+```
+
+See summary
+```{r}
+glimpse(movies)
+glimpse(tv)
+```
+
+Clean column names
+```{r}
+movies <- movies %>% 
+  clean_names()
+
+tv <- tv %>% 
+  clean_names()
+```
+
+Get rid of one-line plot
+```{r}
+movies <- movies %>%
+  select(-one_line)
+```
+
+Clean the year. Create start and end years
+```{r}
+movies <- movies %>%
+  mutate(year = str_replace_all(year, "[^0-9–]", "")) %>%  # Remove non-numeric characters except dash
+  separate(year, into = c("start_year", "end_year"), sep = "–", fill = "right") %>%
+  mutate(across(c(start_year, end_year), as.numeric))  # Ensure numeric conversion
+
+head(movies)
+```
+
+Separate genre column into multiple columns
+
+```{r}
+movies <- movies %>%
+  mutate(genre = str_replace_all(genre, "[\n]", "")) %>%  # remove any newlines
+  separate(genre, into = c("genre_1", "genre_2", "genre_3"), sep = ", ", fill = "right")
+```
+
+Separate directors and stars
+```{r}
+movies <- movies %>%
+  mutate(stars = as.character(stars)) %>% # make stars col all characters
+  mutate(stars = str_trim(stars)) %>% # trim spaces and newlines
+  
+  # make all rows have "Directors:" to get proper split
+  mutate(stars = ifelse(str_detect(stars, "Directors?:"),
+                        stars,  # if "Directors:" exists, keep as is
+                        paste0("Directors: NA | ", stars)  # if missing, prepend "Directors: NA |"
+  )) %>%
+  
+  # split into "directors" and "stars"
+  separate(stars, into = c("directors", "stars"), sep = "\\|", extra = "merge", fill = "right") %>%
+  # split directors into at most 2 columns
+  separate(directors, into = c("director_1", "director_2"), sep = ", ", fill = "right") %>%
+  # split stars into at most 4 columns
+  separate(stars, into = c("star_1", "star_2", "star_3", "star_4"), sep = ", ", fill = "right") %>% 
+  
+  mutate(
+    # remove "Director: " or "Directors: " and trim spaces/newlines
+    director_1 = str_replace(director_1, "^(Director:\\s*|Directors:\\s*)", ""),
+    director_1 = str_replace_all(director_1, "[\n\r]", ""),  # remove all newlines
+    director_1 = str_trim(director_1),  # trim extra spaces
+    
+    # convert "NA" string into actual NA values
+    director_1 = na_if(director_1, "NA"),
+    star_1 = na_if(star_1, "NA"),
+    
+    # remove "Stars: " and any newlines or extra spaces
+    star_1 = str_replace(star_1, "^\\s*Stars:", ""),  # remove "Stars:" with leading spaces
+    star_1 = str_replace_all(star_1, "[\n\r]", " "),  # replace newlines with spaces
+    star_1 = str_squish(star_1),  # remove extra spaces between words
+    star_2 = str_replace_all(star_2, "[\n\r]", " "),
+    star_2 = str_squish(star_2),
+    star_3 = str_replace_all(star_3, "[\n\r]", " "),
+    star_4 = str_squish(star_4),
+    star_4 = str_replace_all(star_4, "[\n\r]", " "),
+    star_4 = str_squish(star_4)
+  )
+
+# check first few rows
+head(movies)
+```
+
+Clean gross col.
+```{r}
+movies <- movies %>% 
+  mutate(
+    gross = str_replace_all(gross, "[^0-9.]", ""),  # remove non-num chars except period
+    gross = as.numeric(gross)  # convert to num
+  )
+```
+
+
+## Check movies vs tv shows
+Clean movies and tv names for better comparison.
+```{r}
+movies <- movies %>%
+  mutate(
+    movies = movies %>%
+      tolower() %>%  # Convert to lowercase
+      str_trim() %>%  # Trim spaces
+      str_squish()  # Remove extra spaces
+  )
+
+tv <- tv %>%
+  mutate(
+    name = name %>%
+      tolower() %>%  # Convert to lowercase
+      str_trim() %>%  # Trim spaces
+      str_squish()  # Remove extra spaces
+  )
+```
+
+
+Filter out only tv shows and only movies
+```{r}
+tv_only <- movies %>% 
+  filter(movies %in% tv$name)
+
+head(tv_only)
+
+movies_only <- movies %>%
+  filter(!movies %in% tv$name)
+```
+
+### Further cleaning movies vs tv
+Filter out rows in movies_only with "Reality-TV" tag
+```{r}
+# Move Reality-TV shows to tv_only
+reality_tv <- movies_only %>%
+  filter(genre_1 == "Reality-TV" | genre_2 == "Reality-TV" | genre_3 == "Reality-TV")
+
+# Remove Reality-TV rows from movies_only
+movies_only <- anti_join(movies_only, reality_tv, by = "movies")
+
+# Add Reality-TV shows to tv_only
+tv_only <- bind_rows(tv_only, reality_tv)
+```
+
+Filter from not one-year
+```{r}
+# Identify rows where start_year and end_year are different and both exist
+multi_year_tv <- movies_only %>%
+  filter((!is.na(start_year)) & (!is.na(end_year)) & (start_year != end_year))
+
+# Remove these rows from movies_only
+movies_only <- anti_join(movies_only, multi_year_tv, by = "movies")
+
+# Add these rows to tv_only
+tv_only <- bind_rows(tv_only, multi_year_tv)
+```
+
+Filter out shorts and commercials
+```{r}
+movies_only %>% 
+  filter(genre_1 == "Short" | genre_2 == "Short" | genre_3 == "Short")
+```
+
+Combine two dataframes
+```{r}
+movies_cleaned <- bind_rows(
+  movies_only %>% mutate(type = "movie"),
+  tv_only %>% mutate(type = "tv")
+)
+
+movies_cleaned <- movies_cleaned %>% 
+  rename(name = movies)
+
+movies_cleaned
+```
+
+Create shorts column
+```{r}
+wrong_movies <- movies_cleaned %>% 
+  mutate(type = if_else(
+    genre_1 == "Short" | genre_2 == "Short" | genre_3 == "Short", 
+    "Short",
+    type  # Keep existing value if condition is FALSE
+  ))
+```
+
+```{r}
+filter(movies_cleaned, type == "Short")
+```
+
