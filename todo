@@ -19,10 +19,15 @@ QUESTIONS
 
 Correlation between ratings and:
 Runtime - Daniel
-Director
-Genre
+  - scatter plot
+Director (which director has the highest ratings on average) - Daniel
+  - bar plot
+Genre (average rating for each genre)
+  - bar plot
 Year
-Stars
+  - line graph
+Stars (which star has the highest ratings on average)
+  - bar plot
 Top/bottom ranked movie for each genre
 Did rankings trend up or down as time progressed?
 Best year for movies
