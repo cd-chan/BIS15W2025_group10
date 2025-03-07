@@ -25,7 +25,9 @@ fake_imdb %>%
               values_from = rating) %>% 
   summarise(across(everything(), mean, na.rm = T)) %>% 
   select(-movie) %>% 
-  pivot_longer(names_to = director,
-               values_to = mean_rating)
+  pivot_longer(cols = everything(), names_to = "director",
+               values_to = "mean_rating") %>% 
+  ggplot(aes(x = director, y = mean_rating)) +
+  geom_col()
 ```
 
