@@ -54,14 +54,23 @@ fake <- c(1:6389)
 
 director_full <- tibble(fake, director_full)
 
-director_full %>% # errors out at row 2939 because there are multiple entries with the same movie and director that have different ratings
+director_full <- director_full %>% # errors out at row 2939 because there are multiple entries with the same movie and director that have different ratings
   pivot_wider(
               names_from = director,
               values_from = rating) %>% 
   summarise(across(everything(), mean, na.rm = T)) %>% 
   select(-fake) %>% 
   pivot_longer(cols = everything(), names_to = "director",
-               values_to = "mean_rating")
+               values_to = "mean_rating") %>% 
+  arrange(-mean_rating) 
+  
+director_full[1:10, ] %>% 
+  ggplot(aes(x = reorder(director, mean_rating), y = mean_rating, fill = director)) +
+  geom_col() +
+  labs(title = "Average Rating of Directors",
+       x = "Director",
+       y = "Average Rating of Movies") +
+  coord_flip()
 
 ```
 
