@@ -11,23 +11,57 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
-movies <- read_csv("/Users/danielyang/Downloads/movies.csv")
+library(dplyr)
+movies <- read_csv("/Users/danielyang/Downloads/BIS15W2025_group10-main/data/movies_cleaned.csv")
 names(movies)
 ```
+
 ```{r}
-movie <- c('a', 'b', 'c', 'd', 'e', 'f')
-director <- c('aa', 'bb', 'aa', 'bb', 'aa', 'bb')
-rating <- c(1.1, 9.9, 2.3, 8.7, 3.1, 8.1)
-fake_imdb <- tibble(movie, director, rating)
-fake_imdb %>% 
+movies %>% 
+  select(name, director_1, rating) %>% 
+  pivot_wider(
+              names_from = director_1,
+              values_from = rating) %>% 
+  summarise(across(everything(), mean, na.rm = T)) %>% 
+  select(-name) %>% 
+  pivot_longer(cols = everything(), names_to = "director",
+               values_to = "mean_rating") %>% 
+  ggplot(aes(x = director, y = mean_rating, fill = director)) +
+  geom_col() +
+  labs(title = "Average Rating of Directors",
+       x = "Director",
+       y = "Average Rating of Movies") +
+  theme_solarized(light = FALSE)
+```
+
+```{r}
+dir1 <- movies %>% 
+  select(name, director_1, rating) %>% 
+  filter(director_1 != "NA") %>% 
+  rename(director = director_1)
+
+dir2 <- movies %>% 
+  select(name, director_2, rating) %>% 
+  filter(director_2 != "NA") %>% 
+  mutate(director_2 = trimws(director_2)) %>% 
+  rename(director = director_2)
+
+director_full <- bind_rows(dir1, dir2) %>% 
+  filter(rating != "NA") %>% 
+  select(director, rating)
+
+fake <- c(1:6389)
+
+director_full <- tibble(fake, director_full)
+
+director_full %>% # errors out at row 2939 because there are multiple entries with the same movie and director that have different ratings
   pivot_wider(
               names_from = director,
               values_from = rating) %>% 
   summarise(across(everything(), mean, na.rm = T)) %>% 
-  select(-movie) %>% 
+  select(-fake) %>% 
   pivot_longer(cols = everything(), names_to = "director",
-               values_to = "mean_rating") %>% 
-  ggplot(aes(x = director, y = mean_rating)) +
-  geom_col()
+               values_to = "mean_rating")
+
 ```
 
