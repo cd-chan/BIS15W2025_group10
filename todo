@@ -28,10 +28,14 @@ Year
   - line graph
 Stars (which star has the highest ratings on average)
   - bar plot
-Top/bottom ranked movie for each genre
+Top/bottom 10 ranked movie for each genre
 Did rankings trend up or down as time progressed?
+- This question will be answered with the ratings vs year graph
 Best year for movies
+- This question will be answered with the ratings vs year graph
 Top movie for various actors/directors
+Raw ratings
+- Density plot
 
 ---------------------------------------
 VARIABLES
