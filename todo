@@ -34,8 +34,21 @@ Did rankings trend up or down as time progressed?
 Best year for movies
 - This question will be answered with the ratings vs year graph
 Top movie for various actors/directors
-Raw ratings
+Ratings by genre
 - Density plot
+
+TAB 1: ONE DROPDOWN (for variables with not too many types). Ratings vs.:
+- Runtime: scatter plot
+- Year: line graph
+Use facet wrap to show for movies, TV, and shorts. Add another box to show for all.
+
+TAB 2: TWO DROPDOWNS (for variables with many types). Show the average ratings for the top [lower boundary]
+to [upper boundary]:
+- Directors: bar plot
+- Genres: bar plot
+- Stars: bar plot
+
+TAB 3: TOP MOVIES FOR A GENRE OF THE USER'S CHOICE. 
 
 ---------------------------------------
 VARIABLES
