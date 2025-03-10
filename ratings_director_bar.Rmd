@@ -17,24 +17,6 @@ names(movies)
 ```
 
 ```{r}
-movies %>% 
-  select(name, director_1, rating) %>% 
-  pivot_wider(
-              names_from = director_1,
-              values_from = rating) %>% 
-  summarise(across(everything(), mean, na.rm = T)) %>% 
-  select(-name) %>% 
-  pivot_longer(cols = everything(), names_to = "director",
-               values_to = "mean_rating") %>% 
-  ggplot(aes(x = director, y = mean_rating, fill = director)) +
-  geom_col() +
-  labs(title = "Average Rating of Directors",
-       x = "Director",
-       y = "Average Rating of Movies") +
-  theme_solarized(light = FALSE)
-```
-
-```{r}
 dir1 <- movies %>% 
   select(name, director_1, rating) %>% 
   filter(director_1 != "NA") %>% 
