@@ -1,0 +1,57 @@
+---
+title: "top_media_genre"
+author: "Daniel Yang"
+date: "2025-03-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# read in data
+```{r}
+library(tidyverse)
+library(dplyr)
+movies <- read_csv("/Users/danielyang/Downloads/BIS15W2025_group10-main/data/tv_only.csv")
+```
+
+# figure out what the genres are
+```{r}
+genre1_options <- as.factor(movies$genre_1)
+levels(genre1_options)
+genre2_options <- as.factor(movies$genre_2)
+levels(genre2_options) # war, history
+genre3_options <- as.factor(movies$genre_3)
+levels(genre3_options) # film-noir
+
+# "Action"      "Adventure"   "Animation"   "Biography"   "Comedy"      "Crime"      
+# "Documentary" "Drama"       "Family"      "Fantasy"     "Film-Noir" "Game-Show"   "History" "Horror"     
+# "Music"       "Musical"     "Mystery"     "News"        "Reality-TV"  "Romance"    
+# "Sci-Fi"      "Short"       "Sport"       "Talk-Show"   "Thriller"    "War"
+# "Western" (27 genres)
+```
+
+# get a data table of movies just of a certain genre, arranged by rating
+```{r}
+genre <- movies %>% 
+  rename(name = "movies") %>% 
+  select(name, genre_1, genre_2, genre_3, rating) %>% 
+  group_by(name, genre_1, genre_2, genre_3) %>% 
+  summarize(rating = mean(rating, na.rm = TRUE)) %>% # average rating of duplicate shows
+  filter(genre_1 == "Crime" | genre_2 == "Crime" | genre_3 == "Crime") %>% # change ALL THREE GENRES to whichever genre you want to look up
+  mutate(rating = signif(rating, digits = 2)) %>% 
+  arrange(-rating)
+```
+
+# create bar plot
+```{r}
+genre[1:10, ] %>% # change this line if you want to change the number of shows shown
+  ggplot(aes(x = name, y = rating))+
+  geom_col(fill = "steelblue")+
+  scale_y_continuous(limits = c(0, 10))+
+  coord_flip()+
+  labs(x = "Rating",
+       y = "Show Name")
+```
+
