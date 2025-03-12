@@ -9,18 +9,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-tvs <- read_csv("Desktop/BIS15W2025_group10-main/data/tv_only.csv")
-```
-
-```{r}
 library(tidyverse)
-library(ggplot2)
 library(shiny)
 library(shinydashboard)
 library(naniar)
 library(janitor)
 library(readr)
-library(dplyr)
+```
+
+```{r}
+# tvs <- read_csv("Desktop/BIS15W2025_group10-main/data/tv_only.csv") # Lab Macs
+tvs <- read_csv("data/tv_only.csv") # Personal Laptop
 ```
 
 
