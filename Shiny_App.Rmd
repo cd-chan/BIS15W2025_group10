@@ -1,0 +1,63 @@
+---
+title: "Shiny_App"
+output: html_document
+date: "2025-03-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(shiny)
+library(shinydashboard)
+library(naniar)
+library(janitor)
+library(readr)
+```
+
+```{r}
+# tvs <- read_csv("Desktop/BIS15W2025_group10-main/data/tv_only.csv") # Lab Macs
+tvs <- read_csv("data/tv_only.csv") # Personal Laptop
+```
+
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  dashboardPage( skin = "black",
+  dashboardHeader(title = "Test"),
+  dashboardSidebar(disable = TRUE),
+  dashboardBody(
+    tags$head(
+      tags$style(HTML(".box{border-radius: 10px; box-shadow: 3px 3px 5px #888888;}"
+                      ))
+      ),
+    fluidRow(
+      box(title = "Ratings", 
+          width = 3, #adjust the column width
+        
+        selectInput("tab1_var", 
+                    "Select Variable", 
+                    choices = c("start_year", "run_time"), 
+                    selected = "start_year")
+
+), # close the first box    
+
+box(title = "Plot of Penguins Data", width = 6, #adjust the column width and add title
+  plotOutput("plot", width = "500px", height = "400px")
+) # close the second box
+) # close the row
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  session$onSessionEnded(stopApp) # stop the app when we close it
+}
+
+shinyApp(ui, server)
+```
+
