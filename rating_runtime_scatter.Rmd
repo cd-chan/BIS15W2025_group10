@@ -9,21 +9,18 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# scatter plot run time vs rating
 ```{r}
 library(tidyverse)
 library(dplyr)
 library(janitor)
 library(ggplot2)
-imdb <- read_csv("/Users/danielyang/Desktop/BIS15W2025_group10/movies.csv") %>% clean_names()
-imdb %>% 
-  select(rating, run_time) %>% 
+imdb <- read_csv("/Users/danielyang/Downloads/BIS15W2025_group10-main/data/tv_only.csv")
+imdb %>%
+  select(rating, run_time, genre_1) %>%
   ggplot(aes(x = run_time, y = rating)) +
   geom_point() +
-  scale_x_log10() +
-  geom_smooth(method = lm, se = T)
+  scale_x_log10()
 ```
 
-```{r}
-
-```
 

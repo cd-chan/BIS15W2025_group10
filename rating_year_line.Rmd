@@ -1,0 +1,30 @@
+---
+title: "rating_year_line"
+author: "Daniel Yang"
+date: "2025-03-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+imdb <- read_csv("/Users/danielyang/Downloads/BIS15W2025_group10-main/data/tv_only.csv")
+```
+
+```{r}
+imdb %>% 
+  select(rating, start_year) %>% 
+  group_by(start_year) %>% 
+  summarize(mean = mean(rating, na.rm = T)) %>% 
+  arrange(start_year) %>% 
+  ggplot(aes(x = start_year, y = mean, fill = mean, color = mean))+
+  geom_line()+
+  geom_point()
+```
+
