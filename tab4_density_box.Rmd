@@ -1,0 +1,42 @@
+---
+title: "tab4_density_box"
+author: "Daniel Yang"
+date: "2025-03-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load data
+```{r}
+library(tidyverse)
+tv <- read_csv("/Users/danielyang/Downloads/BIS15W2025_group10-main/data/tv_only.csv")
+```
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(titlePanel("Distribution of Show Ratings by Genre"),
+                selectInput("x",
+                            "Select Genre",
+                            choices = c("Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance", "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War"),
+                            selected = "Action"),
+                plotOutput("plot", width = "500px", height = "400px")
+  
+)
+
+server <- function(input, output, session) {
+  
+  output$plot <- renderPlot({
+    tv %>% filter(genre_1 == input$x | genre_2 == input$x | genre_3 == input$x) %>% 
+      ggplot(aes(x = rating))+
+      geom_density(fill = "steelblue", color = "black", alpha = 0.6)
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
