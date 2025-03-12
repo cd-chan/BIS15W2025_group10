@@ -12,7 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(dplyr)
-movies <- read_csv("/Users/danielyang/Downloads/BIS15W2025_group10-main/data/movies_cleaned.csv")
+movies <- read_csv("/Users/danielyang/Downloads/BIS15W2025_group10-main/data/tv_only.csv")
+movies <- rename(movies, name = "movies")
 names(movies)
 ```
 
@@ -32,7 +33,7 @@ director_full <- bind_rows(dir1, dir2) %>%
   filter(rating != "NA") %>% 
   select(director, rating)
 
-fake <- c(1:6389)
+fake <- c(1:2714)
 
 director_full <- tibble(fake, director_full)
 
