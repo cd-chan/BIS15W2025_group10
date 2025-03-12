@@ -1,0 +1,75 @@
+---
+title: "tab3_bar"
+author: "Daniel Yang"
+date: "2025-03-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load libraries and data
+```{r}
+library(tidyverse)
+library(shiny)
+library(shinydashboard)
+library(ggplot2)
+library(dplyr)
+tv <- read_csv("/Users/danielyang/Downloads/BIS15W2025_group10-main/data/tv_only.csv")
+```
+# shiny app
+```{r}
+ui <- dashboardPage(
+ dashboardHeader(title = "Top Shows"),
+ dashboardSidebar(disable = T),
+ dashboardBody(
+   fluidRow(
+     box(
+       width = 4,
+       selectInput(
+         "genre",
+         "Select Genre",
+         choices = c("Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy", "Film-Noir", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "News", "Reality-TV", "Romance", "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War", "Western"),
+         selected = "Action"
+       ), # close SelectInput
+       sliderInput(
+         "range", 
+         "Select Number of Top Shows",
+         1, 
+         50,
+         value = c(1, 10),
+         step = 1
+       ) # close sliderInput
+     ), # close box
+     box(
+       width = 8,  # Adjust width
+        plotOutput("plot1", width = "500px", height = "300px")
+     ) # close box
+   ) # close fluidRow
+ ) # close dashboardBody
+) # close dashboardPage
+
+server <- function(input, output, session) {
+  output$plot1 <- renderPlot({
+    tv %>% 
+  rename(name = "movies") %>% 
+  select(name, genre_1, genre_2, genre_3, rating) %>% 
+  group_by(name, genre_1, genre_2, genre_3) %>% 
+  summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
+  filter(genre_1 == input$genre | genre_2 == input$genre | genre_3 == input$genre) %>% 
+  mutate(rating = signif(rating, digits = 2)) %>% 
+  arrange(-rating) %>%     
+  slice(input$range[1]:input$range[2]) %>% 
+  ggplot(aes(x = reorder(name, rating), y = rating))+
+  geom_col(fill = "steelblue")+
+  scale_y_continuous(limits = c(0, 10))+
+  coord_flip()+
+  labs(x = "Rating",
+       y = "Show Name")
+  }) # close renderPlot
+}
+
+shinyApp(ui, server)
+```
+
