@@ -20,6 +20,7 @@ library(readr)
 ```{r}
 # tvs <- read_csv("Desktop/BIS15W2025_group10-main/data/tv_only.csv") # Lab Macs
 tvs <- read_csv("data/tv_only.csv") # Personal Laptop
+tvs <- rename(tvs, name = "movies")
 ```
 
 
@@ -27,35 +28,107 @@ tvs <- read_csv("data/tv_only.csv") # Personal Laptop
 library(shiny)
 
 ui <- fluidPage(
-  dashboardPage( skin = "black",
-  dashboardHeader(title = "Test"),
-  dashboardSidebar(disable = TRUE),
-  dashboardBody(
-    tags$head(
-      tags$style(HTML(".box{border-radius: 10px; box-shadow: 3px 3px 5px #888888;}"
-                      ))
+  dashboardPage(
+    dashboardHeader(title = "Test"),
+    dashboardSidebar(
+      sidebarMenu(
+        menuItem("Ratings vs. Year", 
+                 tabName = "ratings", 
+                 icon = icon("dashboard")),
+        menuItem("Comparisons", 
+                 tabName = "comps", 
+                 icon = icon("th")),
+        menuItem("Show Recommendations", 
+                 tabName = "recs", 
+                 icon = icon("th"))
+      )
+    ),
+    dashboardBody(
+      tags$head(
+        tags$style(HTML(".box{border-radius: 10px; box-shadow: 3px 3px 5px #888888;}"))
       ),
-    fluidRow(
-      box(title = "Ratings", 
-          width = 3, #adjust the column width
-        
-        selectInput("tab1_var", 
-                    "Select Variable", 
-                    choices = c("start_year", "run_time"), 
-                    selected = "start_year")
-
-), # close the first box    
-
-box(title = "Plot of Penguins Data", width = 6, #adjust the column width and add title
-  plotOutput("plot", width = "500px", height = "400px")
-) # close the second box
-) # close the row
+      
+      tabItems(
+        tabItem(
+          tabName = "ratings",
+          fluidRow(
+            box(
+              title = "Variables",
+              width = 3, #adjust the column width
+              selectInput("tab1_var", "Select Variable", choices = c("start_year", "votes"), selected = "start_year")
+            ), # close the first box    
+      
+            box(title = "Ratings vs.", width = 8, #adjust the column width and add title
+              plotOutput("plot_ratings", width = "500px", height = "400px")
+            ) # close the second box
+          ) # close the row
+        ),
+        tabItem(
+          tabName = "comps",
+          fluidRow(
+            box(
+              title = "Top X in Ratings",
+              plotOutput("plot_comps")
+            )
+          )
+        )
+      )
     )
   )
 )
 
 server <- function(input, output, session) {
   session$onSessionEnded(stopApp) # stop the app when we close it
+  output$plot_ratings <- renderPlot({
+    tvs %>% 
+      select(rating, !!sym(input$tab1_var)) %>% 
+      group_by(!!sym(input$tab1_var)) %>% 
+      summarize(mean = mean(rating, na.rm = T)) %>% 
+      arrange(!!sym(input$tab1_var)) %>% 
+      ggplot(aes_string(x = input$tab1_var, y = "mean", fill = "mean", color = "mean"))+
+      geom_line()+
+      geom_point() +
+      scale_x_log10()
+  })
+  
+  output$plot_comps <- renderPlot({
+    dir1 <- tvs %>% 
+      select(name, director_1, rating) %>% 
+      filter(director_1 != "NA") %>% 
+      rename(director = director_1)
+    
+    dir2 <- tvs %>% 
+      select(name, director_2, rating) %>% 
+      filter(director_2 != "NA") %>% 
+      mutate(director_2 = trimws(director_2)) %>% 
+      rename(director = director_2)
+    
+    director_full <- bind_rows(dir1, dir2) %>% 
+      filter(rating != "NA") %>% 
+      select(director, rating)
+    
+    fake <- c(1:2714)
+    
+    director_full <- tibble(fake, director_full)
+    
+    director_full <- director_full %>% # errors out at row 2939 because there are multiple entries with the same movie and director that have different ratings
+      pivot_wider(
+                  names_from = director,
+                  values_from = rating) %>% 
+      summarise(across(everything(), mean, na.rm = T)) %>% 
+      select(-fake) %>% 
+      pivot_longer(cols = everything(), names_to = "director",
+                   values_to = "mean_rating") %>% 
+      arrange(-mean_rating) 
+      
+    director_full[1:10, ] %>% 
+      ggplot(aes(x = reorder(director, mean_rating), y = mean_rating, fill = director)) +
+      geom_col() +
+      labs(title = "Average Rating of Directors",
+           x = "Director",
+           y = "Average Rating of Movies") +
+      coord_flip()
+  })
 }
 
 shinyApp(ui, server)
