@@ -10,7 +10,8 @@ Our process involves:
 3. **Shiny App Development** – Creating an interactive web application to visualize and explore key insights dynamically.  
 
 ## **Data Description**  
-- The dataset includes TV shows, ratings, genres, directors, cast members, and audience votes.  
+- The original dataset is `movies.csv` in /data.
+- The original TV dataset is `tv.csv` in /data.
 
 ## **Installation & Requirements**  
 To run this project, you need:  
@@ -20,19 +21,18 @@ To run this project, you need:
 
 ## **Usage**  
 1. **Data Cleaning**  
-   - Run `data_cleaning.Rmd` to preprocess and clean the dataset. New CSV files have already been written into the /data directory.
+   - Run `clean.Rmd` to preprocess and clean the dataset. New CSV files have already been written into the /data directory.
 
-2. **Perform Analysis**  
-   - Run `analysis.R` to generate visualizations and insights.  
-
-3. **Launch the Shiny App**  
+2. **Perform Analysis and Launch the Shiny App**  
    - Open `Shiny_App.Rmd` in RStudio and click Run to interact with the data.  
 
 ## **Key Findings**  
-- **Genre** influences a TV show’s popularity.  
-- **Well-known directors & showrunners** tend to produce high-ranking shows.  
-- **Star power** plays a crucial role in attracting audiences.  
-- **Higher audience engagement (votes)** correlates with long-term success.  
+Our analysis reveals that several factors are associated a TV show’s popularity in rankings. Specifically:
+
+- Genre: Certain genres like history/news consistently rank higher than others.
+- Number of Votes: Shows with very few and very high audience votes often correlate with higher popularity.
+- Directors: Directors like Michael Dante DiMartino and S.J. Clarkson are associated with successful TV shows like Avatar: The Last Airbender and Dexter.
+- Stars: Stars like Deneen Fendig and Lisa Kreuzer also star in popular TV shows like The Midnight Gospel and Dark.
 
 ## **Contributors**  
 - KB Ko
