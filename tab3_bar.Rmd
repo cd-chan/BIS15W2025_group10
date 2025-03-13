@@ -18,6 +18,97 @@ library(ggplot2)
 library(dplyr)
 tv <- read_csv("/Users/danielyang/Downloads/BIS15W2025_group10-main/data/tv_only.csv")
 ```
+# get number of shows per genre
+```{r}
+genre <- "Western"
+tv %>% 
+  filter(rating != "NA") %>% 
+  rename(name = "movies") %>% 
+  select(name, genre_1, genre_2, genre_3, rating) %>% 
+  group_by(name, genre_1, genre_2, genre_3) %>% 
+  summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
+  filter(genre_1 == genre | genre_2 == genre | genre_3 == genre) %>% 
+  mutate(rating = signif(rating, digits = 2)) %>% 
+  arrange(-rating)
+```
+
+# text input
+```{r}
+ui <- dashboardPage(
+ dashboardHeader(title = "Top Shows"),
+ dashboardSidebar(disable = T),
+ dashboardBody(
+   fluidRow(
+     box(
+       width = 4,
+       selectInput(
+         "genre",
+         "Select Genre",
+         choices = c("Action (391 shows)", "Adventure (290	shows)", "Animation (390 shows)", "Biography (58 shows)", "Comedy (549 shows)", "Crime (326 shows)", "Documentary (273 shows)", "Drama (854 shows)", "Family (130 shows)", "Fantasy (126 shows)", "Film-Noir (3 shows)", "Game-Show (27 shows)", "History (68 shows)", "Horror (117 shows)", "Music (48 shows)", "Musical (11 shows)", "Mystery (172 shows)", "News (1 show)", "Reality-TV (165 shows)", "Romance (168 shows)", "Sci-Fi (85 shows)", "Short (44 shows)", "Sport (37 shows)", "Talk-Show (16 shows)", "Thriller (147 shows)", "War (10 shows)", "Western (9 shows)"),
+         selected = "Action (1,447 shows)"
+       ), # close SelectInput
+       textInput("top",
+                 "Highest Ranking",
+                 value = "1"
+                 ), # close textInput
+       textInput("bottom",
+                 "Lowest Ranking",
+                 value = "10"
+                 ) #close textInput
+     ), # close box
+     box(
+       width = 8,  # Adjust width
+        plotOutput("plot1", width = "500px", height = "300px")
+     ), # close box
+     box(
+       width = 8,
+       tableOutput("table")
+     ) # close box
+   ) # close fluidRow
+ ) # close dashboardBody
+) # close dashboardPage
+
+server <- function(input, output, session) {
+  
+  output$table <- renderTable(
+    tv %>% 
+  filter(rating != "NA") %>% 
+  rename(name = "movies") %>% 
+  select(name, genre_1, genre_2, genre_3, rating) %>% 
+  group_by(name, genre_1, genre_2, genre_3) %>% 
+  summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
+  filter(genre_1 == str_extract(input$genre, "\\S+") | genre_2 == str_extract(input$genre, "\\S+") | genre_3 == str_extract(input$genre, "\\S+")) %>% 
+  mutate(rating = signif(rating, digits = 2)) %>% 
+  arrange(-rating) %>%     
+    slice(as.numeric(input$top):as.numeric(input$bottom)) %>% 
+    select(name, rating) %>% 
+    mutate(ranking = c(as.numeric(input$top):as.numeric(input$bottom))) %>% 
+    relocate(ranking, .before = name)
+  ) # close renderTable
+  
+  output$plot1 <- renderPlot({
+    tv %>% 
+  filter(rating != "NA") %>% 
+  rename(name = "movies") %>% 
+  select(name, genre_1, genre_2, genre_3, rating) %>% 
+  group_by(name, genre_1, genre_2, genre_3) %>% 
+  summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
+  filter(genre_1 == str_extract(input$genre, "\\S+") | genre_2 == str_extract(input$genre, "\\S+") | genre_3 == str_extract(input$genre, "\\S+")) %>% 
+  mutate(rating = signif(rating, digits = 2)) %>% 
+  arrange(-rating) %>%     
+  slice(as.numeric(input$top):as.numeric(input$bottom)) %>% 
+  ggplot(aes(x = reorder(name, rating), y = rating))+
+  geom_col(fill = "steelblue")+
+  scale_y_continuous(limits = c(0, 10))+
+  coord_flip()+
+  labs(x = "Rating",
+       y = "Show Name")
+  }) # close renderPlot
+}
+
+shinyApp(ui, server)
+```
+
 # shiny app
 ```{r}
 ui <- dashboardPage(
@@ -51,6 +142,14 @@ ui <- dashboardPage(
 ) # close dashboardPage
 
 server <- function(input, output, session) {
+  observe({
+    max_range <- 19  # Maximum allowed range width
+    
+    # Check if the range difference exceeds max_range
+    if ((input$range[2] - input$range[1]) > max_range) {
+      updateSliderInput(session, "range", value = c(input$range[1], input$range[1] + max_range))
+    }
+  })
   output$plot1 <- renderPlot({
     tv %>% 
   rename(name = "movies") %>% 
@@ -72,4 +171,83 @@ server <- function(input, output, session) {
 
 shinyApp(ui, server)
 ```
+
+# slider input, upper limit changes with genre
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title = "Top Shows"),
+  dashboardSidebar(disable = T),
+  dashboardBody(
+    fluidRow(
+      box(
+        width = 4,
+        selectInput(
+          "genre",
+          "Select Genre",
+          choices = c("Action", "Adventure", "Animation", "Biography", "Comedy", 
+                      "Crime", "Documentary", "Drama", "Family", "Fantasy", 
+                      "Film-Noir", "Game-Show", "History", "Horror", "Music", 
+                      "Musical", "Mystery", "News", "Reality-TV", "Romance", 
+                      "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War", "Western"),
+          selected = "Action"
+        ), 
+        sliderInput(
+          "range", 
+          "Select Number of Top Shows",
+          min = 1, 
+          max = 50,  # Will be updated dynamically
+          value = c(1, 10),
+          step = 1
+        ) 
+      ), 
+      box(
+        width = 8,
+        plotOutput("plot1", width = "500px", height = "300px")
+      ) 
+    ) 
+  ) 
+)
+
+server <- function(input, output, session) {
+  
+  # Reactive expression to calculate the number of shows in the selected genre
+  num_shows <- reactive({
+    tv %>% 
+      filter(genre_1 == input$genre | genre_2 == input$genre | genre_3 == input$genre) %>% 
+      nrow()  # Count the number of shows
+  })
+  
+  # Observe when genre changes and update slider max
+  observeEvent(input$genre, {
+    max_shows <- num_shows()
+    
+    # Ensure that the slider's selected range remains valid
+    updateSliderInput(session, "range", 
+                      max = max_shows, 
+                      value = c(1, min(10, max_shows)))  # Reset value to avoid errors
+  })
+  
+  output$plot1 <- renderPlot({
+    tv %>% 
+      rename(name = "movies") %>% 
+      select(name, genre_1, genre_2, genre_3, rating) %>% 
+      group_by(name, genre_1, genre_2, genre_3) %>% 
+      summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
+      filter(genre_1 == input$genre | genre_2 == input$genre | genre_3 == input$genre) %>% 
+      mutate(rating = signif(rating, digits = 2)) %>% 
+      arrange(-rating) %>%     
+      slice(input$range[1]:input$range[2]) %>% 
+      ggplot(aes(x = reorder(name, rating), y = rating)) +
+      geom_col(fill = "steelblue") +
+      scale_y_continuous(limits = c(0, 10)) +
+      coord_flip() +
+      labs(x = "Rating", y = "Show Name")
+  })
+}
+
+shinyApp(ui, server)
+
+```
+
+
 
