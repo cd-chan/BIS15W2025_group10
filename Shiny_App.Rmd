@@ -43,6 +43,9 @@ ui <- fluidPage(
                  icon = icon("th")),
         menuItem("Top Shows by Genre",
                  tabName = "top_by_genre",
+                 icon = icon("th")),
+        menuItem("Distribution of Ratings by Genre",
+                 tabName = "dist_by_genre",
                  icon = icon("th"))
       )
     ),
@@ -104,8 +107,51 @@ ui <- fluidPage(
        tableOutput("table")
      ) # close box
    ) # close fluidRow
-      ) # close tabItem
+      ), # close tabItem
+   tabItem(
+     tabName = "dist_by_genre",
+     fluidRow(
+      box(
+        width = 4,  # Adjust width
+        selectInput(
+          "x0",
+          "Select Plot Type",
+          choices = c("Density Plot", "Box Plot"),
+          selected = "Density Plot"
+        ),
+        selectInput(
+          "x1",
+          "Select Genre 1",
+          choices = c("Action", "Adventure", "Animation", 
+                      "Biography", "Comedy", "Crime", "Documentary", 
+                      "Drama", "Family", "Fantasy", 
+                      "Game-Show", "History", "Horror", "Music", 
+                      "Musical", "Mystery", "Reality-TV", 
+                      "Romance", "Sci-Fi", "Short", "Sport", "Talk-Show", 
+                      "Thriller", "War"),
+          selected = "Action"
+        ),
+        selectInput(
+          "x2",
+          "Select Genre 2",
+          choices = c("Action", "Adventure", "Animation", 
+                      "Biography", "Comedy", "Crime", "Documentary", 
+                      "Drama", "Family", "Fantasy", 
+                      "Game-Show", "History", "Horror", "Music", 
+                      "Musical", "Mystery", "Reality-TV", 
+                      "Romance", "Sci-Fi", "Short", "Sport", "Talk-Show", 
+                      "Thriller", "War"),
+          selected = "Adventure"
+        )
+      ),
+      box(
+        width = 8,  # Adjust width
+        plotOutput("plot1d", width = "500px", height = "300px"),
+        plotOutput("plot2d", width = "500px", height = "300px")
       )
+    )
+   ) # close tabItem
+      ) # close tabItems
     )
   )
 )
@@ -197,7 +243,47 @@ server <- function(input, output, session) {
   labs(x = "Rating",
        y = "Show Name")
   }) # close renderPlot
-} # last bracket
+
+  output$plot1d <- renderPlot({
+    genre <- tv %>% filter(genre_1 == input$x1 | genre_2 == input$x1 | genre_3 == input$x1)
+    
+    if (input$x0 == "Density Plot") {
+      ggplot(genre, aes(x = rating)) +
+        geom_density(color = "red") +
+        geom_histogram(aes(y = after_stat(density)), fill = "steelblue", alpha = 0.4, color = "black", alpha = 0.1)+
+        scale_x_continuous(limits = c(0, 10)) +
+        scale_y_continuous(limits = c(0, 1)) +
+        labs(title = input$x1)
+    } else {
+      ggplot(genre, aes(x = rating)) +
+        geom_boxplot() +
+        scale_x_continuous(limits = c(0, 10)) +
+        labs(title = input$x1) +
+        theme(axis.ticks.y = element_blank(),
+              axis.text.y = element_blank())
+    }
+  })
+  
+  output$plot2d <- renderPlot({
+    filtered_data <- tv %>% filter(genre_1 == input$x2 | genre_2 == input$x2 | genre_3 == input$x2)
+    
+    if (input$x0 == "Density Plot") {
+      ggplot(filtered_data, aes(x = rating)) +
+        geom_density(color = "red") +
+        geom_histogram(aes(y = after_stat(density)), fill = "steelblue", alpha = 0.4, color = "black", alpha = 0.1)+
+        scale_x_continuous(limits = c(0, 10)) +
+        scale_y_continuous(limits = c(0, 1)) +
+        labs(title = input$x2)
+    } else {
+      ggplot(filtered_data, aes(x = rating)) +
+        geom_boxplot() +
+        scale_x_continuous(limits = c(0, 10)) +
+        labs(title = input$x2) +
+        theme(axis.ticks.y = element_blank(),
+              axis.text.y = element_blank())
+    }
+  }) # renderPlot
+  } # last bracket
 
 shinyApp(ui, server)
 ```
