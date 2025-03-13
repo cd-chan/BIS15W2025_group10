@@ -40,6 +40,9 @@ ui <- fluidPage(
                  icon = icon("th")),
         menuItem("Show Recommendations", 
                  tabName = "recs", 
+                 icon = icon("th")),
+        menuItem("Top Shows by Genre",
+                 tabName = "top_by_genre",
                  icon = icon("th"))
       )
     ),
@@ -69,9 +72,39 @@ ui <- fluidPage(
             box(
               title = "Top X in Ratings",
               plotOutput("plot_comps")
-            )
+            ) # close box
           )
-        )
+        ), # close tabItem
+      tabItem(
+        tabName = "top_by_genre",
+        fluidRow(
+     box(
+       width = 4,
+       selectInput(
+         "genre",
+         "Select Genre",
+         choices = c("Action (391 shows)", "Adventure (290	shows)", "Animation (390 shows)", "Biography (58 shows)", "Comedy (549 shows)", "Crime (326 shows)", "Documentary (273 shows)", "Drama (854 shows)", "Family (130 shows)", "Fantasy (126 shows)", "Film-Noir (3 shows)", "Game-Show (27 shows)", "History (68 shows)", "Horror (117 shows)", "Music (48 shows)", "Musical (11 shows)", "Mystery (172 shows)", "News (1 show)", "Reality-TV (165 shows)", "Romance (168 shows)", "Sci-Fi (85 shows)", "Short (44 shows)", "Sport (37 shows)", "Talk-Show (16 shows)", "Thriller (147 shows)", "War (10 shows)", "Western (9 shows)"),
+         selected = "Action (1,447 shows)"
+       ), # close SelectInput
+       textInput("top",
+                 "Highest Ranking",
+                 value = "1"
+                 ), # close textInput
+       textInput("bottom",
+                 "Lowest Ranking",
+                 value = "10"
+                 ) #close textInput
+     ), # close box
+     box(
+       width = 8,  # Adjust width
+        plotOutput("plot1", width = "500px", height = "300px")
+     ), # close box
+     box(
+       width = 8,
+       tableOutput("table")
+     ) # close box
+   ) # close fluidRow
+      ) # close tabItem
       )
     )
   )
@@ -128,8 +161,43 @@ server <- function(input, output, session) {
            x = "Director",
            y = "Average Rating of Movies") +
       coord_flip()
-  })
-}
+  }) # close renderPlot
+  
+  output$table <- renderTable(
+    tv %>% 
+  filter(rating != "NA") %>% 
+  rename(name = "movies") %>% 
+  select(name, genre_1, genre_2, genre_3, rating) %>% 
+  group_by(name, genre_1, genre_2, genre_3) %>% 
+  summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
+  filter(genre_1 == str_extract(input$genre, "\\S+") | genre_2 == str_extract(input$genre, "\\S+") | genre_3 == str_extract(input$genre, "\\S+")) %>% 
+  mutate(rating = signif(rating, digits = 2)) %>% 
+  arrange(-rating) %>%     
+    slice(as.numeric(input$top):as.numeric(input$bottom)) %>% 
+    select(name, rating) %>% 
+    mutate(ranking = c(as.numeric(input$top):as.numeric(input$bottom))) %>% 
+    relocate(ranking, .before = name)
+  ) # close renderTable
+  
+  output$plot1 <- renderPlot({
+    tv %>% 
+  filter(rating != "NA") %>% 
+  rename(name = "movies") %>% 
+  select(name, genre_1, genre_2, genre_3, rating) %>% 
+  group_by(name, genre_1, genre_2, genre_3) %>% 
+  summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
+  filter(genre_1 == str_extract(input$genre, "\\S+") | genre_2 == str_extract(input$genre, "\\S+") | genre_3 == str_extract(input$genre, "\\S+")) %>% 
+  mutate(rating = signif(rating, digits = 2)) %>% 
+  arrange(-rating) %>%     
+  slice(as.numeric(input$top):as.numeric(input$bottom)) %>% 
+  ggplot(aes(x = reorder(name, rating), y = rating))+
+  geom_col(fill = "steelblue")+
+  scale_y_continuous(limits = c(0, 10))+
+  coord_flip()+
+  labs(x = "Rating",
+       y = "Show Name")
+  }) # close renderPlot
+} # last bracket
 
 shinyApp(ui, server)
 ```
