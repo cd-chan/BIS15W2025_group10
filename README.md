@@ -4,6 +4,8 @@
 ## **Project Overview**  
 This project explores **factors influencing the popularity and success of TV shows** over time. Using data analysis and visualization techniques, we identify key attributes such as genre, directors, stars, and audience engagement (number of votes) that impact TV show rankings.  
 
+Presentation: https://www.canva.com/design/DAGhlY3h21A/jy3QMmoUV230S_CpMQEagA/view?utm_content=DAGhlY3h21A&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h0a05de28a4#2 
+
 Our process involves:  
 1. **Data Cleaning** – Formatting dates, separating movies from TV shows, separating directors and stars, and ensuring a tidy dataset.  
 2. **Data Analysis** – Examining patterns in ratings, longevity, and audience reception.  
