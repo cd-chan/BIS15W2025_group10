@@ -28,146 +28,132 @@ tvs <- rename(tvs, name = "movies")
 library(shiny)
 
 ui <- fluidPage(
-  dashboardPage(
-    dashboardHeader(title = "Test"),
-    dashboardSidebar(
-      sidebarMenu(
-        menuItem("Ratings vs. Year", 
-                 tabName = "ratings", 
-                 icon = icon("dashboard")),
-        menuItem("Comparisons", 
-                 tabName = "comps", 
-                 icon = icon("th")),
-        menuItem("Show Recommendations", 
-                 tabName = "recs", 
-                 icon = icon("th")),
-        menuItem("Top Shows by Genre",
-                 tabName = "top_by_genre",
-                 icon = icon("th")),
-        menuItem("Distribution of Ratings by Genre",
-                 tabName = "dist_by_genre",
-                 icon = icon("th"))
+  tags$head(
+    tags$style(HTML("
+      .nav-tabs > li > a {font-weight: bold;}
+      .well {border-radius: 4px; margin-bottom: 20px;}
+      .navbar-default {background-color: #3a5149; border-color: #3a5149;}
+      .navbar-default .navbar-nav > li > a {color: #FFFFFF;}
+      .navbar-default .navbar-nav > .active > a, 
+      .navbar-default .navbar-nav > .active > a:focus, 
+      .navbar-default .navbar-nav > .active > a:hover {
+        background-color: #81a36b;
+        color: #FFFFFF;
+      }
+      .well {background-color: #F5F5F5; border-color: #2E8B57;}
+      .btn-primary {background-color: #5A8FAD; border-color: #5A8FAD;}
+      .btn-primary:hover {background-color: #B22222; border-color: #B22222;}
+    "))
+  ),
+  
+  navbarPage(
+    title = span("TV Show Analysis", style = "color: #FFFFFF;"),
+    
+    tabPanel("Ratings vs. Year",
+      sidebarLayout(
+        sidebarPanel(
+          selectInput("tab1_var", "Select Variable", choices = c("start_year", "votes"), selected = "start_year")
+        ),
+        mainPanel(
+          plotOutput("plot_ratings", height = "400px")
+        )
       )
     ),
-    dashboardBody(
-      tags$head(
-        tags$style(HTML(".box{border-radius: 10px; box-shadow: 3px 3px 5px #888888;}"))
-      ),
-      
-      tabItems(
-        tabItem(
-          tabName = "ratings",
-          fluidRow(
-            box(
-              title = "Variables",
-              width = 3, #adjust the column width
-              selectInput("tab1_var", "Select Variable", choices = c("start_year", "votes"), selected = "start_year")
-            ), # close the first box    
-      
-            box(title = "Ratings vs.", width = 8, #adjust the column width and add title
-              plotOutput("plot_ratings", width = "500px", height = "400px")
-            ) # close the second box
-          ) # close the row
+    
+    tabPanel("Comparisons",
+      sidebarLayout(
+        sidebarPanel(
+          selectInput(
+            "category",
+            "Select Directors, Genres, or Stars",
+            choices = c("Directors (1,026 directors)", "Genres (27 genres)", "Stars (7,586 stars)"),
+            selected = "Directors (1,026 directors)"
+          ),
+          textInput("top1", "Highest Ranking", value = "1"), # textInput
+          textInput("bottom1", "Lowest Ranking", value = "10") # close textInput
         ),
-        tabItem(
-          tabName = "comps",
-          fluidRow(
-            box(
-              title = "Top X in Ratings",
-              plotOutput("plot_comps")
-            ) # close box
-          )
-        ), # close tabItem
-      tabItem(
-        tabName = "top_by_genre",
-        fluidRow(
-     box(
-       width = 4,
-       selectInput(
-         "genre",
-         "Select Genre",
-         choices = c("Action (391 shows)", "Adventure (290	shows)", "Animation (390 shows)", "Biography (58 shows)", "Comedy (549 shows)", "Crime (326 shows)", "Documentary (273 shows)", "Drama (854 shows)", "Family (130 shows)", "Fantasy (126 shows)", "Film-Noir (3 shows)", "Game-Show (27 shows)", "History (68 shows)", "Horror (117 shows)", "Music (48 shows)", "Musical (11 shows)", "Mystery (172 shows)", "News (1 show)", "Reality-TV (165 shows)", "Romance (168 shows)", "Sci-Fi (85 shows)", "Short (44 shows)", "Sport (37 shows)", "Talk-Show (16 shows)", "Thriller (147 shows)", "War (10 shows)", "Western (9 shows)"),
-         selected = "Action (1,447 shows)"
-       ), # close SelectInput
-       textInput("top",
-                 "Highest Ranking",
-                 value = "1"
-                 ), # close textInput
-       textInput("bottom",
-                 "Lowest Ranking",
-                 value = "10"
-                 ) #close textInput
-     ), # close box
-     box(
-       width = 8,  # Adjust width
-        plotOutput("plot1", width = "500px", height = "300px")
-     ), # close box
-     box(
-       width = 8,
-       tableOutput("table")
-     ) # close box
-   ) # close fluidRow
-      ), # close tabItem
-   tabItem(
-     tabName = "dist_by_genre",
-     fluidRow(
-      box(
-        width = 4,  # Adjust width
-        selectInput(
-          "x0",
-          "Select Plot Type",
-          choices = c("Density Plot", "Box Plot"),
-          selected = "Density Plot"
-        ),
-        selectInput(
-          "x1",
-          "Select Genre 1",
-          choices = c("Action", "Adventure", "Animation", 
-                      "Biography", "Comedy", "Crime", "Documentary", 
-                      "Drama", "Family", "Fantasy", 
-                      "Game-Show", "History", "Horror", "Music", 
-                      "Musical", "Mystery", "Reality-TV", 
-                      "Romance", "Sci-Fi", "Short", "Sport", "Talk-Show", 
-                      "Thriller", "War"),
-          selected = "Action"
-        ),
-        selectInput(
-          "x2",
-          "Select Genre 2",
-          choices = c("Action", "Adventure", "Animation", 
-                      "Biography", "Comedy", "Crime", "Documentary", 
-                      "Drama", "Family", "Fantasy", 
-                      "Game-Show", "History", "Horror", "Music", 
-                      "Musical", "Mystery", "Reality-TV", 
-                      "Romance", "Sci-Fi", "Short", "Sport", "Talk-Show", 
-                      "Thriller", "War"),
-          selected = "Adventure"
+        mainPanel(
+          plotOutput("plot1b", height = "400px"),
+          tableOutput("table1")
         )
-      ),
-      box(
-        width = 8,  # Adjust width
-        plotOutput("plot1d", width = "500px", height = "300px"),
-        plotOutput("plot2d", width = "500px", height = "300px")
       )
-    )
-   ) # close tabItem
-      ) # close tabItems
+    ),
+    
+    tabPanel("Top Shows by Genre",
+      sidebarLayout(
+        sidebarPanel(
+          selectInput("genre", "Select Genre", 
+            choices = c("Action (391 shows)", "Adventure (290 shows)", "Animation (390 shows)", "Biography (58 shows)", "Comedy (549 shows)", "Crime (326 shows)", "Documentary (273 shows)", "Drama (854 shows)", "Family (130 shows)", "Fantasy (126 shows)", "Film-Noir (3 shows)", "Game-Show (27 shows)", "History (68 shows)", "Horror (117 shows)", "Music (48 shows)", "Musical (11 shows)", "Mystery (172 shows)", "News (1 show)", "Reality-TV (165 shows)", "Romance (168 shows)", "Sci-Fi (85 shows)", "Short (44 shows)", "Sport (37 shows)", "Talk-Show (16 shows)", "Thriller (147 shows)", "War (10 shows)", "Western (9 shows)"), 
+            selected = "Action (391 shows)"
+          ),
+          numericInput("top", "Highest Ranking", value = 1, min = 1),
+          numericInput("bottom", "Lowest Ranking", value = 10, min = 1)
+        ),
+        mainPanel(
+          plotOutput("plot1", height = "400px"),
+          tableOutput("table")
+        )
+      )
+    ),
+    
+    tabPanel("Distribution of Ratings",
+      sidebarLayout(
+        sidebarPanel(
+          selectInput("x0", "Select Plot Type", choices = c("Density Plot", "Box Plot"), selected = "Density Plot"),
+          selectInput("x1", "Select Genre 1", 
+            choices = c("Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "Reality-TV", "Romance", "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War"), 
+            selected = "Action"
+          ),
+          selectInput("x2", "Select Genre 2", 
+            choices = c("Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary", "Drama", "Family", "Fantasy", "Game-Show", "History", "Horror", "Music", "Musical", "Mystery", "Reality-TV", "Romance", "Sci-Fi", "Short", "Sport", "Talk-Show", "Thriller", "War"), 
+            selected = "Adventure"
+          )
+        ),
+        mainPanel(
+          plotOutput("plot1d", height = "300px"),
+          plotOutput("plot2d", height = "300px")
+        )
+      )
     )
   )
 )
 
+
+
 server <- function(input, output, session) {
   session$onSessionEnded(stopApp) # stop the app when we close it
   output$plot_ratings <- renderPlot({
-    tvs %>% 
-      select(rating, !!sym(input$tab1_var)) %>% 
-      group_by(!!sym(input$tab1_var)) %>% 
-      summarize(mean = mean(rating, na.rm = T)) %>% 
-      arrange(!!sym(input$tab1_var)) %>% 
-      ggplot(aes_string(x = input$tab1_var, y = "mean", fill = "mean", color = "mean"))+
-      geom_line()+
-      geom_point() +
-      scale_x_log10()
+    if (str_equal(input$tab1_var, "start_year")) {
+      tvs %>% 
+        select(rating, !!sym(input$tab1_var)) %>% 
+        group_by(!!sym(input$tab1_var)) %>% 
+        summarize(mean = mean(rating, na.rm = TRUE)) %>% 
+        arrange(!!sym(input$tab1_var)) %>% 
+        ggplot(aes_string(x = input$tab1_var, y = "mean")) +
+        geom_line(color = "steelblue") +
+        geom_point(color = "steelblue") +
+        scale_x_log10(
+          breaks = function(x) unique(floor(pretty(x, n = 20))),
+          labels = function(x) sprintf("%.0f", x)
+        ) +
+        labs(title = "Progression of Average Rating across Time",
+             y = "Average Rating",
+             x = "Year")
+
+    } else {
+      tvs %>% 
+        select(rating, !!sym(input$tab1_var)) %>% 
+        group_by(!!sym(input$tab1_var)) %>% 
+        summarize(mean = mean(rating, na.rm = T)) %>% 
+        arrange(!!sym(input$tab1_var)) %>% 
+        ggplot(aes_string(x = input$tab1_var, y = "mean"))+
+        geom_point(color = "steelblue") +
+        scale_x_log10() +
+        geom_smooth(method = "lm") +
+        labs(title = "Average Ratings across Votes",
+             y = "Average Rating",
+             x = "Votes")
+    }
   })
   
   output$plot_comps <- renderPlot({
@@ -200,52 +186,206 @@ server <- function(input, output, session) {
                    values_to = "mean_rating") %>% 
       arrange(-mean_rating) 
       
-    director_full[1:10, ] %>% 
+    director_full[1:15, ] %>% 
       ggplot(aes(x = reorder(director, mean_rating), y = mean_rating, fill = director)) +
       geom_col() +
       labs(title = "Average Rating of Directors",
            x = "Director",
-           y = "Average Rating of Movies") +
-      coord_flip()
+           y = "Average Rating of TV Shows") +
+      coord_flip() +
+      labs(title = "Top X Directors")
   }) # close renderPlot
   
   output$table <- renderTable(
-    tv %>% 
-  filter(rating != "NA") %>% 
-  rename(name = "movies") %>% 
-  select(name, genre_1, genre_2, genre_3, rating) %>% 
-  group_by(name, genre_1, genre_2, genre_3) %>% 
-  summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
-  filter(genre_1 == str_extract(input$genre, "\\S+") | genre_2 == str_extract(input$genre, "\\S+") | genre_3 == str_extract(input$genre, "\\S+")) %>% 
-  mutate(rating = signif(rating, digits = 2)) %>% 
-  arrange(-rating) %>%     
-    slice(as.numeric(input$top):as.numeric(input$bottom)) %>% 
-    select(name, rating) %>% 
-    mutate(ranking = c(as.numeric(input$top):as.numeric(input$bottom))) %>% 
-    relocate(ranking, .before = name)
+    tvs %>% 
+      filter(rating != "NA") %>% 
+      select(name, genre_1, genre_2, genre_3, rating) %>% 
+      group_by(name, genre_1, genre_2, genre_3) %>% 
+      summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
+      filter(genre_1 == str_extract(input$genre, "\\S+") | genre_2 == str_extract(input$genre, "\\S+") | genre_3 == str_extract(input$genre, "\\S+")) %>% 
+      mutate(rating = signif(rating, digits = 2)) %>% 
+      arrange(-rating) %>%     
+      slice(as.numeric(input$top):as.numeric(input$bottom)) %>% 
+      select(name, rating) %>% 
+      mutate(ranking = c(as.numeric(input$top):as.numeric(input$bottom))) %>% 
+      relocate(ranking, .before = name)
   ) # close renderTable
   
   output$plot1 <- renderPlot({
-    tv %>% 
-  filter(rating != "NA") %>% 
-  rename(name = "movies") %>% 
-  select(name, genre_1, genre_2, genre_3, rating) %>% 
-  group_by(name, genre_1, genre_2, genre_3) %>% 
-  summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
-  filter(genre_1 == str_extract(input$genre, "\\S+") | genre_2 == str_extract(input$genre, "\\S+") | genre_3 == str_extract(input$genre, "\\S+")) %>% 
-  mutate(rating = signif(rating, digits = 2)) %>% 
-  arrange(-rating) %>%     
-  slice(as.numeric(input$top):as.numeric(input$bottom)) %>% 
-  ggplot(aes(x = reorder(name, rating), y = rating))+
-  geom_col(fill = "steelblue")+
-  scale_y_continuous(limits = c(0, 10))+
-  coord_flip()+
-  labs(x = "Rating",
-       y = "Show Name")
+    genre_name <- reactive({
+      gsub(" \\(.*\\)$", "", input$genre) # Gets rid of the (x shows) in the genre name
+    })
+    
+    tvs %>% 
+      filter(rating != "NA") %>% 
+      select(name, genre_1, genre_2, genre_3, rating) %>% 
+      group_by(name, genre_1, genre_2, genre_3) %>% 
+      summarize(rating = mean(rating, na.rm = TRUE), .groups = 'drop') %>%
+      filter(genre_1 == str_extract(input$genre, "\\S+") | genre_2 == str_extract(input$genre, "\\S+") | genre_3 == str_extract(input$genre, "\\S+")) %>% 
+      mutate(rating = signif(rating, digits = 2)) %>% 
+      arrange(-rating) %>%     
+      slice(as.numeric(input$top):as.numeric(input$bottom)) %>% 
+      ggplot(aes(x = reorder(name, rating), y = rating))+
+      geom_col(fill = "steelblue")+
+      scale_y_continuous(limits = c(0, 10))+
+      coord_flip()+
+      labs(title = paste("Top X Shows in ", genre_name(), "TV Shows"),
+           x = "Rating",
+           y = "Show Name")
   }) # close renderPlot
+  
+  dir1 <- tvs %>% 
+    select(name, director_1, rating) %>% 
+    filter(director_1 != "NA") %>% 
+    rename(director = director_1)
+  
+  dir2 <- tvs %>% 
+    select(name, director_2, rating) %>% 
+    filter(director_2 != "NA") %>% 
+    mutate(director_2 = trimws(director_2)) %>% 
+    rename(director = director_2)
+  
+  director_full <- bind_rows(dir1, dir2) %>% 
+    filter(rating != "NA") %>% 
+    select(director, rating)
+  
+  fake <- c(1:2714)
+  
+  director_full <- tibble(fake, director_full)
+  
+  director_full <- director_full %>% # errors out at row 2939 because there are multiple entries with the same movie and director that have different ratings
+    pivot_wider(
+                names_from = director,
+                values_from = rating) %>% 
+    summarise(across(everything(), mean, na.rm = T)) %>% 
+    select(-fake) %>% 
+    pivot_longer(cols = everything(), names_to = "director",
+                 values_to = "mean_rating") %>% 
+    arrange(-mean_rating)
+  
+  star1 <- tvs %>% 
+    select(name, star_1, rating) %>% 
+    filter(star_1 != "NA") %>% 
+    rename(star = star_1)
+  
+  star2 <- tvs %>% 
+    select(name, star_2, rating) %>% 
+    filter(star_2 != "NA") %>% 
+    rename(star = star_2)
+  
+  star3 <- tvs %>% 
+    select(name, star_3, rating) %>% 
+    filter(star_3 != "NA") %>% 
+    rename(star = star_3)
+  
+  star4 <- tvs %>% 
+    select(name, star_4, rating) %>% 
+    filter(star_4 != "NA") %>% 
+    rename(star = star_4)
+  
+  star_full <- bind_rows(star1, star2, star3, star4) %>% 
+    filter(rating != "NA") %>% 
+    select(star, rating)
+  
+  fake <- c(1:16204)
+  
+  star_full <- tibble(fake, star_full)
+  
+  star_full <- star_full %>% # errors out at row 2939 because there are multiple entries with the same movie and director that have different ratings
+    pivot_wider(
+                names_from = star,
+                values_from = rating) %>% 
+    summarise(across(everything(), mean, na.rm = T)) %>% 
+    select(-fake) %>% 
+    pivot_longer(cols = everything(), names_to = "star",
+                 values_to = "mean_rating") %>% 
+    arrange(-mean_rating)
+  
+  genre1 <- tvs %>% 
+    select(name, genre_1, rating) %>% 
+    filter(genre_1 != "NA") %>% 
+    rename(genre = genre_1)
+  
+  genre2 <- tvs %>% 
+    select(name, genre_2, rating) %>% 
+    filter(genre_2 != "NA") %>% 
+    rename(genre = genre_2)
+  
+  genre3 <- tvs %>% 
+    select(name, genre_3, rating) %>% 
+    filter(genre_3 != "NA") %>% 
+    rename(genre = genre_3)
+  
+  genre_full <- bind_rows(genre1, genre2, genre3) %>% 
+    filter(rating != "NA") %>% 
+    select(genre, rating)
+  
+  fake <- c(1:10273)
+  
+  genre_full <- tibble(fake, genre_full)
+  
+  genre_full <- genre_full %>% # errors out at row 2939 because there are multiple entries with the same movie and director that have different ratings
+    pivot_wider(
+                names_from = genre,
+                values_from = rating) %>% 
+    summarise(across(everything(), mean, na.rm = T)) %>% 
+    select(-fake) %>% 
+    pivot_longer(cols = everything(), names_to = "genre",
+                 values_to = "mean_rating") %>% 
+  arrange(-mean_rating)
+  
+  output$table1 <- renderTable({
+    if (input$category == "Directors (1,026 directors)") {
+      director_full %>% 
+        slice(as.numeric(input$top1):as.numeric(input$bottom1)) %>% 
+        mutate(ranking = as.numeric(input$top1):as.numeric(input$bottom1)) %>% 
+        relocate(ranking, .before = director) # Adjusted relocate
+    } else if (input$category == "Stars (7,586 stars)") {
+      star_full %>% 
+        slice(as.numeric(input$top1):as.numeric(input$bottom1)) %>% 
+        mutate(ranking = as.numeric(input$top1):as.numeric(input$bottom1)) %>% 
+        relocate(ranking, .before = star) # Adjusted relocate
+    } else {
+      genre_full %>% 
+        slice(as.numeric(input$top1):as.numeric(input$bottom1)) %>% 
+        mutate(ranking = as.numeric(input$top1):as.numeric(input$bottom1)) %>% 
+        relocate(ranking, .before = genre) # Adjusted relocate
+    }
+  })
+  
+  output$plot1b <- renderPlot({
+    if (input$category == "Directors (1,026 directors)") {
+      director_full %>% 
+        slice(as.numeric(input$top1):as.numeric(input$bottom1)) %>% 
+        ggplot(aes(x = reorder(director, mean_rating), y = mean_rating)) +
+        geom_col(fill = "steelblue") +
+        labs(title = "Average Rating of Directors",
+             x = "Director",
+             y = "Average Rating of TV Shows") +
+        coord_flip()
+    } else if (input$category == "Stars (7,586 stars)") {
+      star_full %>% 
+        slice(as.numeric(input$top1):as.numeric(input$bottom1)) %>% 
+        ggplot(aes(x = reorder(star, mean_rating), y = mean_rating)) +
+        geom_col(fill = "steelblue") +
+        labs(title = "Average Rating of Stars",
+             x = "Stars",
+             y = "Average Rating of TV Shows") +
+        coord_flip()
+    } else {
+      genre_full %>% 
+        slice(as.numeric(input$top1):as.numeric(input$bottom1)) %>% 
+        ggplot(aes(x = reorder(genre, mean_rating), y = mean_rating)) +
+        geom_col(fill = "steelblue") +
+        labs(title = "Average Rating of Genres",
+             x = "Genres",
+             y = "Average Rating of TV Shows") +
+        coord_flip()
+    }
+  })
 
   output$plot1d <- renderPlot({
-    genre <- tv %>% filter(genre_1 == input$x1 | genre_2 == input$x1 | genre_3 == input$x1)
+    genre <- tvs %>% filter(genre_1 == input$x1 | genre_2 == input$x1 | genre_3 == input$x1)
     
     if (input$x0 == "Density Plot") {
       ggplot(genre, aes(x = rating)) +
@@ -265,7 +405,7 @@ server <- function(input, output, session) {
   })
   
   output$plot2d <- renderPlot({
-    filtered_data <- tv %>% filter(genre_1 == input$x2 | genre_2 == input$x2 | genre_3 == input$x2)
+    filtered_data <- tvs %>% filter(genre_1 == input$x2 | genre_2 == input$x2 | genre_3 == input$x2)
     
     if (input$x0 == "Density Plot") {
       ggplot(filtered_data, aes(x = rating)) +
