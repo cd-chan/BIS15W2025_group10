@@ -12,6 +12,7 @@ Our process involves:
 ## **Data Description**  
 - The original dataset is `movies.csv` in /data.
 - The original TV dataset is `tv.csv` in /data.
+- The cleaned data set containing only TV shows that we used in analysis is `tv_only.csv` in /data.
 
 ## **Installation & Requirements**  
 To run this project, you need:  
@@ -24,7 +25,7 @@ To run this project, you need:
    - Run `clean.Rmd` to preprocess and clean the dataset. New CSV files have already been written into the /data directory.
 
 2. **Perform Analysis and Launch the Shiny App**  
-   - Open `Shiny_App.Rmd` in RStudio and click Run to interact with the data.  
+   - Open `Shiny_App.Rmd` in RStudio and click Run to interact with our analysis.  
 
 ## **Key Findings**  
 Our analysis reveals that several factors are associated a TV show’s popularity in rankings. Specifically:
