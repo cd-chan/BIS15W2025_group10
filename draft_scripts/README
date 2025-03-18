@@ -1,0 +1,5 @@
+This folder contains the original analysis scripts that went into Shiny_App.Rmd. 
+
+rating_year_line.Rmd: Line graph showing the relationship between a year and the average rating of all the TV shows that started in that year. Found on the "Ratings vs. Year" tab of the Shiny App.
+ratings_director_bar.Rmd: Bar graph showing the average ratings of top directors' TV shows. Found on the "Comparisons" tab of the Shiny App.
+

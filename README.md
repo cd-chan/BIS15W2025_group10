@@ -8,8 +8,8 @@ Presentation: https://www.canva.com/design/DAGhlY3h21A/jy3QMmoUV230S_CpMQEagA/vi
 
 Our process involves:  
 1. **Data Cleaning** – Formatting dates, separating movies from TV shows, separating directors and stars, and ensuring a tidy dataset.  
-2. **Data Analysis** – Examining patterns in ratings, longevity, and audience reception.  
-3. **Shiny App Development** – Creating an interactive web application to visualize and explore key insights dynamically.  
+2. **Data Analysis** – Examining patterns in ratings, longevity, and audience reception. Original analysis was done in /draft_scripts.  
+3. **Shiny App Development** – Creating an interactive web application to visualize and explore key insights dynamically. Analysis from /draft_scripts was combined into `Shiny_App.Rmd`.  
 
 ## **Data Description**  
 - The original dataset is `movies.csv` in /data.
