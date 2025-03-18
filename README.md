@@ -12,9 +12,9 @@ Our process involves:
 3. **Shiny App Development** – Creating an interactive web application to visualize and explore key insights dynamically. Analysis from /draft_scripts was combined into `Shiny_App.Rmd`.  
 
 ## **Data Description**  
-- The original dataset is `movies.csv` in /data.
-- The original TV dataset is `tv.csv` in /data.
-- The cleaned data set containing only TV shows that we used in analysis is `tv_only.csv` in /data.
+- The original dataset is `movies.csv` in `/data`.
+- The original TV dataset is `tv.csv` in `/data`.
+- The cleaned data set containing only TV shows that we used in analysis is `tv_only.csv` in `/data`.
 
 ## **Installation & Requirements**  
 To run this project, you need:  
@@ -24,7 +24,7 @@ To run this project, you need:
 
 ## **Usage**  
 1. **Data Cleaning**  
-   - Run `clean.Rmd` to preprocess and clean the dataset. New CSV files have already been written into the /data directory.
+   - Run `clean.Rmd` to preprocess and clean the dataset. New CSV files have already been written into the `/data` directory.
 
 2. **Perform Analysis and Launch the Shiny App**  
    - Open `Shiny_App.Rmd` in RStudio and click Run to interact with our analysis.  
